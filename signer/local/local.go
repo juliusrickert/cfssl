@@ -342,6 +342,9 @@ func (s *Signer) Sign(req signer.SignRequest) (cert []byte, err error) {
 		safeTemplate.CRLDistributionPoints = []string{req.CRLOverride}
 	}
 
+	OverrideHosts(&safeTemplate, req.Hosts)
+	safeTemplate.Subject = PopulateSubjectFromCSR(req.Subject, safeTemplate.Subject)
+
 	if safeTemplate.IsCA {
 		if !profile.CAConstraint.IsCA {
 			log.Error("local signer policy disallows issuing CA certificate")
@@ -360,9 +363,6 @@ func (s *Signer) Sign(req signer.SignRequest) (cert []byte, err error) {
 			return nil, cferr.New(cferr.PolicyError, cferr.InvalidRequest)
 		}
 	}
-
-	OverrideHosts(&safeTemplate, req.Hosts)
-	safeTemplate.Subject = PopulateSubjectFromCSR(req.Subject, safeTemplate.Subject)
 
 	// If there is a whitelist, ensure that both the Common Name and SAN DNSNames match
 	if profile.NameWhitelist != nil {
