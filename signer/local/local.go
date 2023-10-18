@@ -357,7 +357,7 @@ func (s *Signer) Sign(req signer.SignRequest) (cert []byte, err error) {
 				// do not sign a cert with pathlen > current
 				return nil, cferr.New(cferr.PolicyError, cferr.InvalidRequest)
 			}
-		} else if s.ca != nil && s.ca.MaxPathLen == 0 && s.ca.MaxPathLenZero {
+		} else if s.ca != nil && s.ca.MaxPathLen == 0 && s.ca.MaxPathLenZero && safeTemplate.Subject.String() != s.ca.Subject.String() {
 			log.Error("local signer certificate disallows issuing CA certificate")
 			// signer has pathlen of 0, do not sign more intermediate CAs
 			return nil, cferr.New(cferr.PolicyError, cferr.InvalidRequest)
